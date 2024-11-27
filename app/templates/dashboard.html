@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Service Status</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Port</th>
+            <th>Launch</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for service, details in services.items() %}
+        <tr>
+            <td>{{ service }}</td>
+            <td>{{ details['status'] }}</td>
+            <td>{{ details['port'] }}</td>
+            <td>
+                <a href="http://{{ details['subdomain'] }}.{{ base_domain }}" target="_blank">Launch</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
