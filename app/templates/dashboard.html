@@ -1,7 +1,13 @@
-
 {% extends 'base.html' %}
 {% block content %}
 <h2>Service Status</h2>
+<button id="discover-btn">Discover Services</button>
+
+<div id="discovered-services" style="margin-top: 20px;">
+    <h3>Discovered Services</h3>
+    <ul id="services-list"></ul>
+</div>
+
 <table>
     <thead>
         <tr>
@@ -24,4 +30,38 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+document.getElementById('discover-btn').addEventListener('click', () => {
+    fetch('/services/discover')
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('services-list');
+            list.innerHTML = '';
+            data.forEach(service => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    ${service.name} (Port: ${service.port})
+                    <button onclick="addService('${service.name}', ${service.port})">Add to Dashboard</button>
+                `;
+                list.appendChild(listItem);
+            });
+        });
+});
+
+function addService(name, port) {
+    fetch('/services/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({name, port})
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        location.reload();
+    });
+}
+</script>
 {% endblock %}
