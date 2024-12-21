@@ -24,12 +24,64 @@
             <td>{{ details['status'] }}</td>
             <td>{{ details['port'] }}</td>
             <td>
-                <a href="http://{{ details['subdomain'] }}.{{ base_domain }}" target="_blank">Launch</a>
+                <a href="http://{{ details['subdomain'] }}.{{ base_domain }}" class="launch-btn" target="_blank">Launch</a>
+
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<button id="suggest-changes">Suggest Nginx Changes</button>
+
+<div id="suggested-changes" style="margin-top: 20px; display: none;">
+    <h3>Suggested Changes</h3>
+    <ul id="changes-list"></ul>
+    <button id="apply-changes" style="display: none;">Apply Changes</button>
+</div>
+
+<script>
+document.getElementById('suggest-changes').addEventListener('click', () => {
+    fetch('/nginx/suggest')
+        .then(response => response.json())
+        .then(data => {
+            const changesList = document.getElementById('changes-list');
+            changesList.innerHTML = '';
+            data.forEach(change => {
+                const li = document.createElement('li');
+                li.textContent = `${change.subdomain} -> Port ${change.port} (${change.service})`;
+                changesList.appendChild(li);
+            });
+            document.getElementById('suggested-changes').style.display = 'block';
+            if (data.length > 0) {
+                document.getElementById('apply-changes').style.display = 'block';
+            }
+        });
+});
+
+document.getElementById('apply-changes').addEventListener('click', () => {
+    fetch('/nginx/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            changes: Array.from(document.querySelectorAll('#changes-list li')).map(li => {
+                const [subdomain, portService] = li.textContent.split(' -> ');
+                const [port, service] = portService.match(/\d+|\w+/g);
+                return { subdomain, port: parseInt(port), service };
+            })
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(`Error: ${data.error}`);
+        } else {
+            alert('Changes applied successfully!');
+            location.reload();
+        }
+    });
+});
+</script>
 
 <script>
 document.getElementById('discover-btn').addEventListener('click', () => {
@@ -65,3 +117,5 @@ function addService(name, port) {
 }
 </script>
 {% endblock %}
+
+
