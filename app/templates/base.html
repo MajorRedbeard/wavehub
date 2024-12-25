@@ -9,8 +9,26 @@
 </head>
 <body>
     <header>
-        <h1>WaveHub Management Dashboard</h1>
-    </header>
+    <h1>WaveHub Management Dashboard</h1>
+    <a href="/settings" class="gear-btn" title="Settings">
+        ⚙️
+    </a>
+</header>
+
+<style>
+.gear-btn {
+    float: right;
+    font-size: 24px;
+    text-decoration: none;
+    color: black;
+    margin-top: -35px;
+    margin-right: 15px;
+}
+.gear-btn:hover {
+    color: #4CAF50;
+}
+</style>
+
     <main>
         {% block content %}{% endblock %}
     </main>
